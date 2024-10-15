@@ -8,11 +8,11 @@ import morgan from 'morgan';
 import { connect, set, disconnect } from 'mongoose';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS } from '@config';
-import { dbConnection } from '@databases';
-import { Routes } from '@interfaces/routes.interface';
-import errorMiddleware from '@middlewares/error.middleware';
-import { logger, stream } from '@utils/logger';
+import { NODE_ENV, PORT, LOG_FORMAT, ORIGIN, CREDENTIALS } from '@/common/config';
+import { dbConnection } from '@/common/databases';
+import { Routes } from '@/common/interfaces/routes.interface';
+import errorMiddleware from '@/common/middlewares/error.middleware';
+import { logger, stream } from '@/utils/logger';
 
 class App {
   public app: express.Application;
@@ -22,13 +22,17 @@ class App {
   constructor(routes: Routes[]) {
     this.app = express();
     this.env = NODE_ENV || 'development';
-    this.port = PORT || 3000;
+    this.port = PORT || 5000;
 
-    this.connectToDatabase();
-    this.initializeMiddlewares();
-    this.initializeRoutes(routes);
-    this.initializeSwagger();
-    this.initializeErrorHandling();
+    try {
+      this.connectToDatabase();
+      this.initializeMiddlewares();
+      this.initializeRoutes(routes);
+      this.initializeSwagger();
+      this.initializeErrorHandling();
+    } catch (error) {
+      logger.error('Error initializing app:', error);
+    }
   }
 
   public listen() {
@@ -57,8 +61,13 @@ class App {
     if (this.env !== 'production') {
       set('debug', true);
     }
-
-    await connect(dbConnection.url);
+    set('strictQuery', true);
+    try {
+      await connect(dbConnection.url);
+      logger.info('Connected to MongoDB');
+    } catch (error) {
+      logger.error('Error connecting to MongoDB:', error);
+    }
   }
 
   private initializeMiddlewares() {

@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
-import { CreateUserDto } from '@dtos/users.dto';
-import { User } from '@interfaces/users.interface';
-import userService from '@services/users.service';
+import { CreateUserDto } from '@/users/users.dto';
+import { User } from '@/users/users.interface';
+import userService from '@/users/users.service';
+import { logger } from '@/utils/logger';
 
 class UsersController {
   public userService = new userService();
@@ -57,6 +58,20 @@ class UsersController {
 
       res.status(200).json({ data: deleteUserData, message: 'deleted' });
     } catch (error) {
+      next(error);
+    }
+  };
+
+  public getGithubUserToken = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const code: string = req.body.code as string;
+      const response = await this.userService.getGithubUserToken(code);
+
+      logger.info(` response ${response}`);
+      res.status(200).json({ data: response, message: 'getGithubUserToken' });
+    } catch (error) {
+      console.log(error);
+      logger.error(error);
       next(error);
     }
   };

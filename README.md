@@ -47,7 +47,6 @@
 
 <br />
 
-
 <br />
 
 ## 😎 Introduction
@@ -72,12 +71,12 @@ The TypeScript Express Mongoose Starter is a comprehensive boilerplate for build
 
 ## ⚒ How to Install
 
-
 To create a new project using this starter template, you can use `npx` to quickly scaffold the project. if you don't write the project name yourself, default name typescript-express-mongoose-starter will be used.
 
 ```bash
 $ npx typescript-express-mongoose-starter <project-name>
 ```
+
 Alternatively, you can clone the repository and install the dependencies:
 
 ```bash
@@ -85,10 +84,13 @@ $ git clone https://github.com/ahmadjoya/typescript-express-mongoose-starter.git
 $ cd typescript-express-mongoose-starter
 $ npm install
 ```
+
 ## Configuration
 
 Before starting the project, make sure to set up your database credentials in the `.env.development.local` file. This file is used for local development and should not be committed to version control. Here's an example of how the `.env.development.local` file should be structured:
+
 ### Database Configuration
+
 - **DB_HOST=** 127.0.0.1
 - **DB_PORT=** 27017
 - **DB_DATABASE=** dev
@@ -102,6 +104,7 @@ Before starting the project, make sure to set up your database credentials in th
 ## 🍴 Forkers
 
 [![Forkers repo roster for @ahmadjoya/typescript-express-mongoose-starter](https://reporoster.com/forks/ahmadjoya/typescript-express-mongoose-starter)](https://github.com/ahmadjoya/typescript-express-mongoose-starter/network/members)
+
 ## Contributions
 
 Contributions, bug reports, and feature requests are always welcome! If you encounter any issues or have ideas to improve the starter template, please feel free to open an issue or submit a pull request on the [GitHub repository](https://github.com/ahmadjoya/typescript-express-mongoose-starter).
