@@ -3,15 +3,47 @@ import { CreateUserDto } from '@/users/users.dto';
 import { User } from '@/users/users.interface';
 import userService from '@/users/users.service';
 import { logger } from '@/utils/logger';
+import GithubService from '@/github_app/github.service';
+import { Octokit } from '@octokit/rest';
 
 class UsersController {
   public userService = new userService();
+  public githubService = new GithubService();
 
   public getUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const findAllUsersData: User[] = await this.userService.findAllUser();
 
       res.status(200).json({ data: findAllUsersData, message: 'findAll' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getSelf = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // const userId: string = req.user._id;
+      const findOneUserData: User = await this.userService.findUserById('670e8377312736a7b3cca866');
+      const githubToken = await this.githubService.getUserAccount('670e8377312736a7b3cca866');
+      logger.info(`githubToken ${githubToken}`);
+      const octokit = new Octokit({
+        auth: githubToken.accessToken,
+      });
+
+     // const response = await octokit.apps.listInstallationsForAuthenticatedUser();
+
+    //  const response = await octokit.apps.listInstallationReposForAuthenticatedUser({
+    //   installation_id: 55965694,
+    // });
+    // await octokit.issues.create({
+    //   owner: 'mohamed-gudle',
+    //   repo: 'portfolio-website',
+    //   title: 'My first issue',
+    //   body: 'I opened this issue because...',
+    // });
+
+   
+      res.status(200).json({ data: { ...findOneUserData, github: githubToken !== null }, message: 'findOne' });
     } catch (error) {
       next(error);
     }

@@ -15,9 +15,11 @@ class UsersRoute implements Routes {
 
   private initializeRoutes() {
     this.router.post(`${this.path}/github/user-token`, this.usersController.getGithubUserToken);
+    this.router.get(`${this.path}/self`,this.usersController.getSelf)
 
-    this.router.post(`${this.path}`, validationMiddleware(CreateUserDto, 'body'), this.usersController.createUser);
-    this.router.put(`${this.path}/:id`, validationMiddleware(CreateUserDto, 'body', true), this.usersController.updateUser);
+
+    // this.router.post(`${this.path}`, validationMiddleware(CreateUserDto, 'body'), this.usersController.createUser);
+    // this.router.put(`${this.path}/:id`, validationMiddleware(CreateUserDto, 'body', true), this.usersController.updateUser);
   }
 }
 
