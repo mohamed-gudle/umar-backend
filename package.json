@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@octokit/auth-app": "^7.1.1",
+    "@octokit/oauth-methods": "^5.1.2",
     "@octokit/rest": "^21.0.2",
     "axios": "^1.7.7",
     "bcrypt": "^5.0.1",
@@ -39,6 +40,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.5.0",
     "morgan": "^1.10.0",
+    "oauth": "^0.10.0",
     "octokit": "^4.0.2",
     "swagger-jsdoc": "^6.2.1",
     "swagger-ui-express": "^4.5.0",
@@ -58,6 +60,7 @@
     "@types/jsonwebtoken": "^8.5.8",
     "@types/morgan": "^1.9.3",
     "@types/node": "^17.0.45",
+    "@types/oauth": "^0.9.6",
     "@types/supertest": "^2.0.12",
     "@types/swagger-jsdoc": "^6.0.1",
     "@types/swagger-ui-express": "^4.1.3",

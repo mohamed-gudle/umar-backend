@@ -13,6 +13,7 @@ class GithubRoute implements Routes {
 
   private initializeRoutes() {
     this.router.get(`${this.path}/user-token`, this.githubController.getGithubUserToken);
+    this.router.post(`${this.path}/create-issue`, this.githubController.createIssue);
 
   }
 }

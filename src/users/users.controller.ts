@@ -5,10 +5,12 @@ import userService from '@/users/users.service';
 import { logger } from '@/utils/logger';
 import GithubService from '@/github_app/github.service';
 import { Octokit } from '@octokit/rest';
+import TrelloService from '@/trello_app/trello.service';
 
 class UsersController {
   public userService = new userService();
   public githubService = new GithubService();
+  public trelloService = new TrelloService();
 
   public getUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -25,10 +27,12 @@ class UsersController {
       // const userId: string = req.user._id;
       const findOneUserData: User = await this.userService.findUserById('670e8377312736a7b3cca866');
       const githubToken = await this.githubService.getUserAccount('670e8377312736a7b3cca866');
+      const trelloToken = await this.trelloService.getUserAccount('670e8377312736a7b3cca866');
+
+      const repos = await this.githubService.getReposinInstallation(githubToken);
+
       logger.info(`githubToken ${githubToken}`);
-      const octokit = new Octokit({
-        auth: githubToken.accessToken,
-      });
+      logger.info(`trelloToken ${trelloToken}`);
 
      // const response = await octokit.apps.listInstallationsForAuthenticatedUser();
 
@@ -43,7 +47,7 @@ class UsersController {
     // });
 
    
-      res.status(200).json({ data: { ...findOneUserData, github: githubToken !== null }, message: 'findOne' });
+      res.status(200).json({ ...findOneUserData, github: githubToken !== null, trello: trelloToken !==null ,repositories: repos });
     } catch (error) {
       next(error);
     }

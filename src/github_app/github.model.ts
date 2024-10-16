@@ -7,6 +7,10 @@ const githubSchema: Schema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'User',
   },
+  installation: {
+    type: Number,
+    required: true,
+  },
   accessToken: {
     type: String,
     required: true,
@@ -30,6 +34,10 @@ const githubSchema: Schema = new Schema({
   },
   refreshTokenExpiresAt: {
     type: Date,
+    required: true,
+  },
+  owner: {
+    type: String,
     required: true,
   },
 });
