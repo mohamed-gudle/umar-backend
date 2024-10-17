@@ -1,32 +1,36 @@
-import { NextFunction, Response } from 'express';
-import { verify } from 'jsonwebtoken';
-import { SECRET_KEY } from '@/common/config';
-import { HttpException } from '@/common/exceptions/HttpException';
-import { DataStoredInToken, RequestWithUser } from '@/common/interfaces/auth.interface';
-import userModel from '@/users/users.model';
+import { expressjwt, GetVerificationKey } from "express-jwt";
+import JwksRsa from "jwks-rsa";
 
-const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-  try {
-    const Authorization = req.cookies['Authorization'] || (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
+// Ensure that AUTH0_DOMAIN and AUTH0_AUDIENCE are defined in the environment variables
+const AUTH0_DOMAIN = process.env.AUTH0_DOMAIN!;
+const AUTH0_AUDIENCE = process.env.AUTH0_AUDIENCE!;
 
-    if (Authorization) {
-      const secretKey: string = SECRET_KEY;
-      const verificationResponse = (await verify(Authorization, secretKey)) as DataStoredInToken;
-      const userId = verificationResponse._id;
-      const findUser = await userModel.findById(userId);
+if (!AUTH0_DOMAIN || !AUTH0_AUDIENCE) {
+  throw new Error('Missing environment variables for AUTH0_DOMAIN or AUTH0_AUDIENCE');
+}
 
-      if (findUser) {
-        req.user = findUser;
-        next();
-      } else {
-        next(new HttpException(401, 'Wrong authentication token'));
-      }
-    } else {
-      next(new HttpException(404, 'Authentication token missing'));
+// Dynamically provide a signing key based on the kid in the header and the signing keys provided by the JWKS endpoint
+const checkJwt: any = expressjwt({
+  secret: JwksRsa.expressJwtSecret({
+    cache: true,
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: `https://${AUTH0_DOMAIN}/.well-known/jwks.json`,
+  }) as GetVerificationKey,  // Explicitly type the secret as GetVerificationKey
+  audience: 'http://localhost:5000',
+  issuerBaseURL: `https://${AUTH0_DOMAIN}`,
+  algorithms: ["RS256"],
+});
+
+declare global {
+  namespace Express {
+    interface Request {
+      auth?: {
+        sub?: string;
+        [key: string]: any; 
+      };
     }
-  } catch (error) {
-    next(new HttpException(401, 'Wrong authentication token'));
   }
-};
+}
 
-export default authMiddleware;
+export { checkJwt };

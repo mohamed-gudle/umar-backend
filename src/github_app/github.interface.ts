@@ -9,5 +9,5 @@ export interface Github {
   tokenType: string;
   accessTokenExpiresAt: Date;
   refreshTokenExpiresAt: Date;
-  expiresAt: Date;
+  
 }

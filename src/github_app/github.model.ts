@@ -4,8 +4,9 @@ import { Github } from '@/github_app/github.interface';
 
 const githubSchema: Schema = new Schema({
   user: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
+    type: String,
+    required: true,
+    unique: true,
   },
   installation: {
     type: Number,

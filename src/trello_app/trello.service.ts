@@ -8,7 +8,7 @@ class TrelloService {
   private oAuthRequestToken = requestTokenModel;
   private trello = trelloModel;
 
-  private readonly expiration = '1hour';
+  private readonly expiration = 'never';
   private readonly scope = 'read,write,account';
   private readonly appName = 'Trello App';
   private readonly requestURL = 'https://trello.com/1/OAuthGetRequestToken';
@@ -30,7 +30,7 @@ class TrelloService {
     });
   };
 
-  public getAccessToken = async (oauthToken: string, oauthVerifier: string): Promise<string> => {
+  public getAccessToken = async (oauthToken: string, oauthVerifier: string, user : string): Promise<string> => {
     const { requestTokenSecret } = await this.oAuthRequestToken.findOne({ requestToken: oauthToken }).exec();
 
     logger.info(`oauthTokenSecret: ${requestTokenSecret}`);
@@ -49,7 +49,7 @@ class TrelloService {
         logger.info(`accessTokenSecret: ${accessTokenSecret}`);
         logger.info(`results: ${JSON.stringify(results)}`);
 
-        await this.trello.create({ user: '670e8377312736a7b3cca866', accessToken, accessTokenSecret });
+        await this.trello.create({ user, accessToken, accessTokenSecret });
         resolve(accessToken);
       });
     });
@@ -67,7 +67,7 @@ class TrelloService {
           logger.error(`Error: ${error}`);
           return reject(error);
         }
-        resolve(data);
+        resolve(JSON.parse(data as string));
       });
     });
   };

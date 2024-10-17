@@ -2,11 +2,10 @@ import { GITHUB_APP_ID, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_PRIVATE_K
 import githubModel from '@/github_app/github.model';
 import { logger } from '@/utils/logger';
 import { createAppAuth, GitHubAppUserAuthentication } from '@octokit/auth-app';
+import { refreshToken } from "@octokit/oauth-methods";
 import { Octokit } from '@octokit/rest';
-import { refreshToken } from "@octokit/oauth-methods"
 import fs from 'fs';
 import { Github } from './github.interface';
-import { log } from 'console';
 
 export default class GithubService {
   // public octokitApp: App = new App({
@@ -25,12 +24,27 @@ export default class GithubService {
     clientSecret: GITHUB_CLIENT_SECRET,
   });
 
-  public async getUserToken(code: string): Promise<GitHubAppUserAuthentication> {
+  public async getUserToken(code: string, userID:string): Promise<GitHubAppUserAuthentication> {
     const userAuthentication = await this.auth({ type: 'oauth-user', code: code });
+    logger.info(`token: ${userAuthentication}`);
     const stringifiedUserAuthentication = JSON.stringify(userAuthentication);
     logger.info(`userAuthentication: ${stringifiedUserAuthentication}`);
+    logger.info(`userAuthentication: ${userAuthentication.token}`);
+
+    const octokit = new Octokit({
+      auth: userAuthentication.token
+    });
+
+    const { data: { login: owner } } = await octokit.users.getAuthenticated();
+    const installations = await octokit.apps.listInstallationsForAuthenticatedUser();
+    logger.info(`installations: ${JSON.stringify(installations.data)}`);
+
+    const installationId = installations.data.installations[0].id;
 
     const newGithubModel = await this.github.create({ 
+      user:userID,
+      installation: installationId,
+      owner,
       accessToken: userAuthentication.token,
       refreshToken: userAuthentication.refreshToken,
       scope: userAuthentication.scope,
@@ -43,11 +57,13 @@ export default class GithubService {
   }
 
   public async getUserAccount(userID: string): Promise<any> {
+    
     const userAccount = await this.github.findOne({ user: userID }).exec();
     return userAccount;
   }
 
   public async getReposinInstallation(githubAccount: Github): Promise<any> {
+    await this.refreshUserToken(githubAccount);
     logger.info(`getReposinInstallation: ${githubAccount.accessToken}`);
 
     
@@ -75,8 +91,9 @@ export default class GithubService {
   }
 
   public async refreshUserToken(githubAccount: Github): Promise<Github> {
-    if (githubAccount.expiresAt > new Date()) {
 
+    if (githubAccount.accessTokenExpiresAt > new Date()) {
+      logger.info(`Token is still valid`);
       return githubAccount;
     }
 

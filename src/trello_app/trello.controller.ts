@@ -15,8 +15,9 @@ class TrelloController {
 
     public getAccessToken = async (req: Request, res: Response, next: NextFunction) => {
         try {
+            const { sub } = req.auth;
             const { oauth_token, oauth_verifier } = req.query;
-            const response = await this.trelloService.getAccessToken(oauth_token as string, oauth_verifier as string);
+            const response = await this.trelloService.getAccessToken(oauth_token as string, oauth_verifier as string, sub as string);
 
             res.status(200).json({ message:'success' });
         } catch (error) {
@@ -26,7 +27,8 @@ class TrelloController {
 
     public getBoards = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const trelloAccount = await this.trelloService.getUserAccount('670e8377312736a7b3cca866');
+            const { sub } = req.auth;
+            const trelloAccount = await this.trelloService.getUserAccount(sub);
             const response = await this.trelloService.getBoards(trelloAccount);
 
             res.status(200).json(response);
@@ -37,9 +39,10 @@ class TrelloController {
 
     public createList = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { boardID, name } = req.body;
-            const trelloAccount = await this.trelloService.getUserAccount('670e8377312736a7b3cca866');
-            const response = await this.trelloService.createList(trelloAccount, boardID, name);
+            const { sub } = req.auth;
+            const { board, listName } = req.body;
+            const trelloAccount = await this.trelloService.getUserAccount(sub);
+            const response = await this.trelloService.createList(trelloAccount, board, listName);
             
             res.status(200).json(response);
         } catch (error) {
